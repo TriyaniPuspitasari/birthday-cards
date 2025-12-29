@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Happy Birthday - Elegant Game</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;600&display=swap');
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            overflow-x: hidden;
+            color: #fff;
+        }
+
+        .stars {
+            position: fixed;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .welcome-screen, .game-screen, .final-screen {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .profile-photo {
+            width: 200px;
+            height: 200px;
+            border-radius: 50%;
+            border: 5px solid #e94560;
+            box-shadow: 0 0 40px rgba(233, 69, 96, 0.5);
+            margin-bottom: 30px;
+            animation: photoFloat 3s ease-in-out infinite;
+            object-fit: cover;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 80px;
+            overflow: hidden;
+        }
+
+        .profile-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        @keyframes photoFloat {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-15px); }
+        }
+
+        h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 4em;
+            margin: 20px 0;
+            background: linear-gradient(45deg, #e94560, #f39c12, #e94560);
+            background-size: 200% 200%;
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: gradientShift 3s ease infinite;
+        }
+
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .subtitle {
+            font-size: 1.3em;
+            color: #ddd;
+            margin-bottom: 40px;
+            font-weight: 300;
+        }
+
+        .elegant-button {
+            background: linear-gradient(135deg, #e94560, #f39c12);
+            border: none;
+            padding: 18px 50px;
+            font-size: 1.2em;
+            color: white;
+            border-radius: 50px;
+            cursor: pointer;
+            font-weight: 600;
+            letter-spacing: 1px;
+            box-shadow: 0 10px 30px rgba(233, 69, 96, 0.4);
+            transition: all 0.3s;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .elegant-button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 40px rgba(233, 69, 96, 0.6);
+        }
+
+        .game-container {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 30px;
+            padding: 50px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-width: 700px;
+        }
+
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .memory-card {
+            aspect-ratio: 1;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 15px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3em;
+            transition: all 0.3s;
+            position: relative;
+            transform-style: preserve-3d;
+        }
+
+        .memory-card:hover {
+            transform: scale(1.05);
+        }
+
+        .memory-card.flipped {
+            background: rgba(255, 255, 255, 0.95);
+            transform: rotateY(180deg);
+        }
+
+        .memory-card.matched {
+            background: linear-gradient(135deg, #f39c12, #e94560);
+            opacity: 0.7;
+            cursor: default;
+        }
+
+        .game-info {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 20px;
+            font-size: 1.1em;
+        }
+
+        .score {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+
+        .final-message {
+            font-size: 1.5em;
+            line-height: 1.8;
+            max-width: 700px;
+            margin: 30px auto;
+            color: #ddd;
+            font-weight: 300;
+        }
+
+        .wish-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 40px;
+            margin: 20px 0;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .particle {
+            position: fixed;
+            pointer-events: none;
+            animation: particleFloat 6s infinite;
+        }
+
+        @keyframes particleFloat {
+            0%, 100% { 
+                transform: translateY(0) rotate(0deg);
+                opacity: 0;
+            }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { 
+                transform: translateY(-100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .photo-gallery {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin: 30px 0;
+            flex-wrap: wrap;
+        }
+
+        .floating-photo {
+            width: 150px;
+            height: 150px;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 3px solid #e94560;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            animation: photoFloat 3s ease-in-out infinite;
+            position: relative;
+        }
+
+        .floating-photo:nth-child(2) {
+            animation-delay: 0.5s;
+            width: 150px;
+            height: 150px;
+        }
+
+        .floating-photo:nth-child(3) {
+            animation-delay: 1s;
+        }
+
+        .floating-photo:nth-child(4) {
+            animation-delay: 1.5s;
+        }
+
+        .floating-photo img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .music-control {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: linear-gradient(135deg, #e94560, #f39c12);
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 5px 20px rgba(233, 69, 96, 0.5);
+            transition: all 0.3s;
+            z-index: 1000;
+            font-size: 24px;
+        }
+
+        .music-control:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 30px rgba(233, 69, 96, 0.7);
+        }
+
+        .music-control.playing {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+
+    <!-- Music Control -->
+    <div class="music-control" id="musicControl" onclick="toggleMusic()">🎵</div>
+    <audio id="bgMusic" loop>
+        <source src="https://cdn.pixabay.com/audio/2022/08/02/audio_33cda4aaa6.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- Welcome Screen -->
+    <div class="welcome-screen" id="welcomeScreen">
+        <div class="container">
+            <div class="profile-photo"> 
+                <img src="jagung.jpeg" alt="Birthday">
+            </div>
+            <h1>Happy Birthday dona TUA!</h1>
+            <p class="subtitle">Mari rayakan hari istimewamu dengan game spesial</p>
+            <button class="elegant-button" onclick="startGame()">Mulai Perayaan</button>
+        </div>
+    </div>
+
+    <!-- Game Screen -->
+    <div class="game-screen hidden" id="gameScreen">
+        <div class="container">
+            <div class="game-container">
+                <h2 style="font-family: 'Playfair Display', serif; font-size: 2.5em; margin-bottom: 10px;">Memory Game</h2>
+                <p class="subtitle" style="margin-bottom: 20px; font-size: 1em;">Temukan pasangan kartu untuk membuka ucapan spesial!</p>
+                
+                <div class="game-info">
+                    <div class="score">Langkah: <span id="moves">0</span></div>
+                    <div class="score">Pasangan: <span id="matches">0</span>/8</div>
+                </div>
+
+                <div class="memory-grid" id="memoryGrid"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Final Screen -->
+    <div class="final-screen hidden" id="finalScreen">
+        <div class="container">
+            <div class="profile-photo">
+                <img src="jagung.jpeg" alt="Celebration">
+            </div>
+            <h1>Selamat!</h1>
+            
+            <div class="photo-gallery">
+                <div class="floating-photo">
+                    <img src="brlyn.jpeg" alt="Photo 1">
+                </div>
+                <div class="floating-photo">
+                    <img src="dona.jpeg" alt="Photo 2">
+                </div>
+                <div class="floating-photo">
+                    <img src="bda.jpeg" alt="Photo 3">
+                </div>
+                <div class="floating-photo">
+                    <img src="azl.jpeg" alt="Photo 4">
+                </div>
+            </div>
+
+            <div class="wish-card">
+                <p class="final-message">
+                    Selamat ulang tahun yang luar biasa! 🎊<br><br>
+                    Semoga di tahun yang baru ini, setiap impianmu menjadi kenyataan, 
+                    setiap langkahmu membawa kebahagiaan, dan setiap harimu penuh dengan 
+                    momen indah yang tak terlupakan.<br><br>
+                    Kamu adalah orang yang istimewa, dan dunia menjadi lebih baik 
+                    karena kehadiranmu. Teruslah bersinar! ✨
+                </p>
+            </div>
+            <button class="elegant-button" onclick="restart()">Main Lagi</button>
+        </div>
+    </div>
+
+    <script>
+        let musicPlaying = false;
+        const music = document.getElementById('bgMusic');
+        const musicControl = document.getElementById('musicControl');
+
+        function toggleMusic() {
+            if(musicPlaying) {
+                music.pause();
+                musicControl.textContent = '🎵';
+                musicControl.classList.remove('playing');
+            } else {
+                music.play();
+                musicControl.textContent = '🎶';
+                musicControl.classList.add('playing');
+            }
+            musicPlaying = !musicPlaying;
+        }
+
+        // Auto play music when game starts
+        function autoPlayMusic() {
+            music.play().then(() => {
+                musicPlaying = true;
+                musicControl.textContent = '🎶';
+                musicControl.classList.add('playing');
+            }).catch(() => {
+                console.log('Auto-play blocked. Click music button to play.');
+            });
+        }
+
+        // Create stars
+        const starsContainer = document.getElementById('stars');
+        for(let i = 0; i < 100; i++) {
+            const star = document.createElement('div');
+            star.className = 'star';
+            star.style.left = Math.random() * 100 + '%';
+            star.style.top = Math.random() * 100 + '%';
+            star.style.animationDelay = Math.random() * 3 + 's';
+            starsContainer.appendChild(star);
+        }
+
+        // Memory Game
+        const emojis = ['🎁', '🎈', '🎂', '🎉', '🎊', '🌟', '💝', '🎀'];
+        let cards = [...emojis, ...emojis];
+        let flippedCards = [];
+        let matchedPairs = 0;
+        let moves = 0;
+
+        function shuffle(array) {
+            for(let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+            return array;
+        }
+
+        function startGame() {
+            document.getElementById('welcomeScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
+            initGame();
+            createParticles();
+            autoPlayMusic();
+        }
+
+        function initGame() {
+            cards = shuffle(cards);
+            const grid = document.getElementById('memoryGrid');
+            grid.innerHTML = '';
+            
+            cards.forEach((emoji, index) => {
+                const card = document.createElement('div');
+                card.className = 'memory-card';
+                card.dataset.emoji = emoji;
+                card.dataset.index = index;
+                card.addEventListener('click', flipCard);
+                grid.appendChild(card);
+            });
+        }
+
+        function flipCard() {
+            if(flippedCards.length >= 2) return;
+            if(this.classList.contains('flipped') || this.classList.contains('matched')) return;
+
+            this.classList.add('flipped');
+            this.textContent = this.dataset.emoji;
+            flippedCards.push(this);
+
+            if(flippedCards.length === 2) {
+                moves++;
+                document.getElementById('moves').textContent = moves;
+                checkMatch();
+            }
+        }
+
+        function checkMatch() {
+            const [card1, card2] = flippedCards;
+            
+            if(card1.dataset.emoji === card2.dataset.emoji) {
+                card1.classList.add('matched');
+                card2.classList.add('matched');
+                matchedPairs++;
+                document.getElementById('matches').textContent = matchedPairs;
+                flippedCards = [];
+
+                if(matchedPairs === 8) {
+                    setTimeout(showFinal, 1000);
+                }
+            } else {
+                setTimeout(() => {
+                    card1.classList.remove('flipped');
+                    card2.classList.remove('flipped');
+                    card1.textContent = '';
+                    card2.textContent = '';
+                    flippedCards = [];
+                }, 1000);
+            }
+        }
+
+        function showFinal() {
+            document.getElementById('gameScreen').classList.add('hidden');
+            document.getElementById('finalScreen').classList.remove('hidden');
+            createCelebration();
+        }
+
+        function restart() {
+            matchedPairs = 0;
+            moves = 0;
+            flippedCards = [];
+            document.getElementById('moves').textContent = '0';
+            document.getElementById('matches').textContent = '0';
+            document.getElementById('finalScreen').classList.add('hidden');
+            document.getElementById('gameScreen').classList.remove('hidden');
+            initGame();
+        }
+
+        function createParticles() {
+            setInterval(() => {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.textContent = ['✨', '💫', '⭐', '🌟'][Math.floor(Math.random() * 4)];
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.fontSize = (Math.random() * 20 + 20) + 'px';
+                particle.style.animationDuration = (Math.random() * 3 + 4) + 's';
+                document.body.appendChild(particle);
+                setTimeout(() => particle.remove(), 6000);
+            }, 2000);
+        }
+
+        function createCelebration() {
+            for(let i = 0; i < 50; i++) {
+                setTimeout(() => {
+                    const particle = document.createElement('div');
+                    particle.className = 'particle';
+                    particle.textContent = ['🎊', '🎉', '🎈', '🎁'][Math.floor(Math.random() * 4)];
+                    particle.style.left = Math.random() * 100 + '%';
+                    particle.style.fontSize = (Math.random() * 30 + 30) + 'px';
+                    particle.style.animationDuration = (Math.random() * 2 + 3) + 's';
+                    document.body.appendChild(particle);
+                    setTimeout(() => particle.remove(), 5000);
+                }, i * 100);
+            }
+        }
+    </script>
+</body>
+</html>
